@@ -4,7 +4,42 @@ import axios from "axios";
 const useAxiosFetch = (datUrl) => {
   const [data, setData] = useState([]);
   const [fetchError, setFetchError] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  
+  useEffect(() => {
+    let isMounted = true;
+    const source = axios.CancelToken.source();
+
+    const fetchData = async (url) => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(url, {
+          cancelToken: source.token,
+        });
+        if (isMounted) {
+          setData(response.data);
+          setFetchError(null);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setFetchError(err.message);
+          setData([]);
+        }
+      } finally {
+        isMounted && setTimeout(() => setIsLoading(false), 2000);
+      }
+    };
+    fetchData(datUrl);
+
+    const cleanUp = () => {
+      console.log("clean up function");
+      isMounted = false;
+      source.cancel();
+    };
+    return cleanUp;
+  }, [datUrl]);
+
+  return { data, fetchError, isLoading };
 };
+
+export default useAxiosFetch;
