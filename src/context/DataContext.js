@@ -1,22 +1,13 @@
-import Header from "./Header";
-import Nav from "./Nav";
-import Footer from "./Footer";
-import Home from "./Home";
-import NewPost from "./NewPost";
-import PostPage from "./PostPage";
-import About from "./About";
-import Missing from "./Missing";
-import EditPost from "./EditPost";
+import { useEffect, useState, createContext } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import api from "./api/posts";
+import api from "../api/posts";
+import useWindowSize from "../hooks/useWindowSize";
+import useAxiosFetch from "../hooks/useAxiosFetch";
 
-import useWindowSize from "./hooks/useWindowSize";
-import useAxiosFetch from "./hooks/useAxiosFetch";
-import { DataProvider } from "./context/DataContext";
+const DataContext = createContext({});
 
-function App() {
+export const DataProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -105,39 +96,15 @@ function App() {
       console.log(`Error: ${err.message}`);
     }
   };
-
   return (
-    <div className="App">
-      <DataProvider>
-        <Header title="React JS Blog" />
-        <Nav />
-        <Routes>
-          <Route exact path="/" element={<Home/>}/>
-          <Route exact path="/post" element={<NewPost/>}/>
-          <Route
-            path="/edit/:id"
-            element={
-              <EditPost
-                posts={posts}
-                handleEdit={handleEdit}
-                editTitle={editTitle}
-                setEditTitle={setEditTitle}
-                editBody={editBody}
-                setEditBody={setEditBody}
-              />
-            }
-          />
-          <Route
-            path="/post/:id"
-            element={<PostPage posts={posts} handleDelete={handleDelete} />}
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="*" element={<Missing />} />
-        </Routes>
-        <Footer />
-      </DataProvider>
-    </div>
-  );
-}
+    <DataContext.Provider value={{
+        width , search , setSearch, searchResults, fetchError,
+        isLoading, handleSubmit, postBody, setPostBody, postTitle,
+        setPostTitle
+    }}>
+        {children}
+    </DataContext.Provider>
+);
+};
 
-export default App;
+export default DataContext;
