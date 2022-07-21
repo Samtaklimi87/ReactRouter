@@ -24,7 +24,7 @@ const NewPost = () => {
       setPostBody("");
       navigate("/");
     } catch (err) {
-      console.log(`Error: ${err.message}`);
+      console.log(`Error3: ${err.message}`);
     }
   };
   
